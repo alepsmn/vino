@@ -1,0 +1,10 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ product.name }} - Detalle{% endblock %}
+{% block meta_description %}{{ product.meta_description }}{% endblock %}
+
+{% block content %}
+    <h1>{{ product.name }}</h1>
+    <p>Precio: {{ product.price }}€ | Stock: {{ product.stock }} | Uva: {{ product.grape }}</p>
+    <button>Añadir al Carrito</button>  <!-- Llama a utils de cart [2] -->
+{% endblock %}

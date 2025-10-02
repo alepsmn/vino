@@ -1,0 +1,19 @@
+{% extends 'base.html' %}  <!-- Hereda de base global -->
+
+{% block title %}Catálogo de Vinos{% endblock %}
+{% block meta_description %}Nuestra selección de vinos por categoría y uva.{% endblock %}
+
+{% block content %}
+    <h1>Catálogo de Productos</h1>
+    <form method="get">  <!-- Filtros como antes -->
+        <input type="text" name="grape" placeholder="Uva (ej. Tempranillo)">
+        <button type="submit">Filtrar</button>
+    </form>
+    {% for product in products %}
+        <div class="card">
+            <h2><a href="{% url 'product_detail' product.slug %}">{{ product.name }}</a></h2>
+            <p>Precio: {{ product.price }}€ | Volumen: {{ product.volume }}L</p>
+            {% if product.image %}<img src="{{ product.image.url }}" alt="{{ product.name }}" width="200">{% endif %}
+        </div>
+    {% endfor %}
+{% endblock %}
