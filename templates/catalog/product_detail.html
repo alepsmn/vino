@@ -1,10 +1,26 @@
 {% extends 'base.html' %}
 
 {% block title %}{{ product.name }} - Detalle{% endblock %}
-{% block meta_description %}{{ product.meta_description }}{% endblock %}
+{% block meta_description %}{{ product.meta_description|default:"Detalles del producto " ~ product.name }}{% endblock %}
 
 {% block content %}
     <h1>{{ product.name }}</h1>
-    <p>Precio: {{ product.price }}€ | Stock: {{ product.stock }} | Uva: {{ product.grape }}</p>
-    <button>Añadir al Carrito</button>  <!-- Llama a utils de cart [2] -->
+    <p>Uva: {{ product.grape }} | Notas: {{ product.notes }}</p>
+    {% if product.image %}<img src="{{ product.image.url }}" alt="{{ product.name }}" width="300">{% endif %}
+    
+    <h2>Variantes disponibles</h2>
+    {% for variant in product.prefetched_variants %}
+        <div class="variant-card">
+            <p>Año: {{ variant.vintage|default:"N/A" }} | Volumen: {{ variant.volume_ml|default:"N/A" }} ml | ABV: {{ variant.abv|default:"N/A" }}%</p>
+            {% for price in variant.prefetched_prices %}
+                <p>Precio: {{ price.sale_amount }}€ (desde {{ price.valid_from }})</p>
+            {% endfor %}
+            {% for stock in variant.prefetched_stock %}
+                <p>Stock en {{ stock.store.name }}: {{ stock.on_hand }}</p>
+            {% endfor %}
+            <button onclick="addToCart('{{ variant.id }}')">Añadir al Carrito</button>  <!-- Llama a JS o view para cart -->
+        </div>
+    {% empty %}
+        <p>No hay variantes disponibles para este producto.</p>
+    {% endfor %}
 {% endblock %}

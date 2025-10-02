@@ -5,15 +5,22 @@
 
 {% block content %}
     <h1>Catálogo de Productos</h1>
-    <form method="get">  <!-- Filtros como antes -->
-        <input type="text" name="grape" placeholder="Uva (ej. Tempranillo)">
+    <form method="get">  <!-- Filtros dinámicos -->
+        <input type="text" name="grape" placeholder="Uva (ej. Tempranillo)" value="{{ request.GET.grape }}">
+        <input type="number" name="volume_min" placeholder="Volumen mínimo (ml)" value="{{ request.GET.volume_min }}">
         <button type="submit">Filtrar</button>
     </form>
-    {% for product in products %}
-        <div class="card">
-            <h2><a href="{% url 'product_detail' product.slug %}">{{ product.name }}</a></h2>
-            <p>Precio: {{ product.price }}€ | Volumen: {{ product.volume }}L</p>
-            {% if product.image %}<img src="{{ product.image.url }}" alt="{{ product.name }}" width="200">{% endif %}
-        </div>
-    {% endfor %}
+    {% if products %}
+        {% for product in products %}
+            <div class="card">
+                <h2><a href="{% url 'product_detail' product.slug %}">{{ product.name }} ({{ product.grape }})</a></h2>
+                {% with variant=product.prefetched_variants.0 %}  <!-- Primera variante como "principal" -->
+                    <p>Precio: {{ variant.prefetched_prices.0.sale_amount|default:"N/A" }}€ | Volumen: {{ variant.volume_ml|default:"N/A" }} ml | Stock: {{ variant.prefetched_stock.0.on_hand|default:"N/A" }}</p>
+                {% endwith %}
+                {% if product.image %}<img src="{{ product.image.url }}" alt="{{ product.name }}" width="200">{% endif %}
+            </div>
+        {% endfor %}
+    {% else %}
+        <p>No hay productos disponibles con estos filtros.</p>
+    {% endif %}
 {% endblock %}

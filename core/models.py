@@ -1,4 +1,5 @@
 from django.db import models
+from django.utils.text import slugify
 
 # Create your models here.
 
@@ -12,10 +13,27 @@ class Product(models.Model):
     notes = models.TextField(blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    active = models.BooleanField(default=True)
+
+    # Nuevos para SEO
+    slug = models.SlugField(unique=True, blank=True)
+    meta_title = models.CharField(max_length=200, blank=True)
+    meta_description = models.TextField(blank=True)
+    image = models.ImageField(upload_to='products/', blank=True, null=True)
 
     class Meta:
         verbose_name = "Product"
         verbose_name_plural = "Products"
+
+    def __str__(self):
+        return self.name
+    
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = slugify(self.name)
+        if not self.meta_title:
+            self.meta_title = f"{self.name} - {self.brand} ({self.grape})"
+        super().save(*args, **kwargs)
 
 class ProductVariant(models.Model): 
     # con related name puedo acceder como product.variants - related name: expandirlo al resto de FK
