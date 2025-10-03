@@ -118,7 +118,7 @@ class StockBalance(models.Model):
         verbose_name_plural = "Stock Balances"
 
 class Order(models.Model):
-    store = models.ForeignKey(Store, on_delete=models.SET_NULL, null=True, blank=True)
+    store = models.ForeignKey(Store, on_delete=models.SET_NULL, null=True, blank=True, related_name='core_orders')
     channel = models.ForeignKey(Channel, on_delete=models.CASCADE)
     status = models.CharField(max_length=50)
     totals = models.DecimalField(max_digits=10, decimal_places=2)

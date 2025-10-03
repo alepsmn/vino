@@ -27,6 +27,7 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
+CART_SESSION_ID = "cart"
 
 # Application definition
 
@@ -42,6 +43,7 @@ INSTALLED_APPS = [
     "pos",
     "api",
     "rest_framework",
+    "cart",
 ]
 
 MIDDLEWARE = [

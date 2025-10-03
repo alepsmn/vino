@@ -1,0 +1,10 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h1>Checkout</h1>
+    <p>Total: {{ cart.total }}€</p>
+    <form method="post">
+        {% csrf_token %}
+        <button type="submit">Pagar</button>  <!-- Integra Stripe aquí en views -->
+    </form>
+{% endblock %}

@@ -1,0 +1,10 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h1>Tu Carrito</h1>
+    {% for item in cart.cart.values %}
+        <p>Producto ID: {{ item.variant_id }} | Cantidad: {{ item.quantity }} | Subtotal: {{ item.subtotal }}€</p>
+    {% endfor %}
+    <p>Total: {{ cart.total }}€</p>
+    <a href="{% url 'cart:checkout' %}">Checkout</a>
+{% endblock %}
