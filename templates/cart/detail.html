@@ -2,9 +2,44 @@
 
 {% block content %}
     <h1>Tu Carrito</h1>
-    {% for item in cart.cart.values %}
-        <p>Producto ID: {{ item.variant_id }} | Cantidad: {{ item.quantity }} | Subtotal: {{ item.subtotal }}€</p>
-    {% endfor %}
-    <p>Total: {{ cart.total }}€</p>
-    <a href="{% url 'cart:checkout' %}">Checkout</a>
+    {% if items %}
+        <table>
+            <thead>
+                <tr>
+                    <th>Producto</th>
+                    <th>Cantidad</th>
+                    <th>Precio Unitario (€)</th>
+                    <th>Subtotal (€)</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in items %}
+                    <tr>
+                        <td>{{ item.variant.product.name }} (Variante: {{ item.vid }})</td>
+                        <td>
+                            {% if variant.id %}
+                                <form action="{% url 'cart:add_to_cart' variant.id %}" method="post">
+                                    {% csrf_token %}
+                                    <label for="quantity">Cantidad:</label>
+                                    <input type="number" id="quantity" name="quantity" value="1" min="1" max="{{ variant.stock_on_hand }}" />  <!-- Ajusta max al stock real -->
+                                    <button type="submit">Añadir al Carrito</button>
+                                </form>
+                            {% else %}
+                                <span>Variante no disponible</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ item.price|floatformat:2 }}</td>
+                        <td>{{ item.subtotal|floatformat:2 }}</td>
+                        <td><a href="{% url 'cart:remove_from_cart' item.vid %}">Eliminar</a></td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <p><strong>Total:</strong> {{ total|floatformat:2 }} €</p>
+        <a href="/">Seguir comprando</a> | <a href="{% url 'cart:checkout' %}">Proceder al checkout</a>
+    {% else %}
+        <p>Tu carrito está vacío.</p>
+        <a href="/">Empieza a comprar</a>
+    {% endif %}
 {% endblock %}

@@ -9,6 +9,9 @@ class Cart(models.Model):
     session_key = models.CharField(max_length=40, blank=True)  # Para anónimos
     created_at = models.DateTimeField(auto_now_add=True)
 
+    def __str__(self):
+        return f"Carrito de {self.user or self.session_key}"
+
 class CartItem(models.Model):
     cart = models.ForeignKey(Cart, on_delete=models.CASCADE, related_name='items')
     variant = models.ForeignKey(ProductVariant, on_delete=models.CASCADE)
@@ -17,6 +20,9 @@ class CartItem(models.Model):
     def subtotal(self):
         price = Price.objects.filter(variant=self.variant).latest('valid_from')  # Precio actual
         return price.sale_amount * self.quantity if price else 0
+
+    def __str__(self):
+        return f"{self.variant} x{self.quantity} en Carrito {self.cart.id}"
 
 class Order(models.Model):
     STATUS_CHOICES = (
@@ -35,6 +41,9 @@ class Order(models.Model):
     def calculate_total(self):
         self.total = sum(item.subtotal() for item in self.items.all())
         self.save()
+    
+    def __str__(self):
+        return f"Orden {self.id} - {self.status} ({self.total} €)"
 
 class OrderItem(models.Model):
     order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='items')
@@ -45,9 +54,15 @@ class OrderItem(models.Model):
     def subtotal(self):
         return self.unit_price * self.quantity
 
+    def __str__(self):
+        return f"{self.variant} x{self.quantity} en Orden {self.order.id}"
+
 class Payment(models.Model):
     order = models.OneToOneField(Order, on_delete=models.CASCADE)
     amount = models.DecimalField(max_digits=10, decimal_places=2)
     transaction_id = models.CharField(max_length=100, blank=True)  # De Stripe u otro
     paid_at = models.DateTimeField(auto_now_add=True)
     status = models.CharField(max_length=20, default='pending')  # pending, success, failed
+
+    def __str__(self):
+        return f"Pago para Orden {self.order.id} - {self.amount} € ({self.status})"

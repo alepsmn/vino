@@ -25,7 +25,7 @@ class Product(models.Model):
         verbose_name = "Product"
         verbose_name_plural = "Products"
 
-    def __str__(self):
+    def __str__(self): # metodo para dar nombres en admin/otros para poder id
         return self.name
     
     def save(self, *args, **kwargs):
@@ -48,6 +48,9 @@ class ProductVariant(models.Model):
     class Meta:
         verbose_name = "Product Variant"
         verbose_name_plural = "Product Variants"
+    
+    def __str__(self): 
+        return f"{self.product.name} - SKU: {self.sku}"
 
 class Store(models.Model):
     name = models.CharField(max_length=100)
@@ -57,6 +60,9 @@ class Store(models.Model):
     class Meta:
         verbose_name = "Store"
         verbose_name_plural = "Stores"
+    
+    def __str__(self):
+        return self.name
 
 class Channel(models.Model):
     code = models.CharField(max_length=50, unique=True)
@@ -66,6 +72,9 @@ class Channel(models.Model):
     class Meta:
         verbose_name = "Channel"
         verbose_name_plural = "Channels"
+    
+    def __str__(self):
+        return self.code
 
 class Price(models.Model):
     variant = models.ForeignKey(ProductVariant, on_delete=models.CASCADE)
@@ -89,6 +98,9 @@ class Price(models.Model):
         verbose_name = "Price"
         verbose_name_plural = "Prices"
 
+    def __str__(self):
+        return f"Precio para {self.variant} en {self.store or 'General'}"
+
 class StockLedger(models.Model):
     variant = models.ForeignKey(ProductVariant, on_delete=models.CASCADE)
     store = models.ForeignKey(Store, on_delete=models.CASCADE)
@@ -104,6 +116,9 @@ class StockLedger(models.Model):
     class Meta:
         verbose_name = "Stock Ledger"
         verbose_name_plural = "Stock Ledgers"
+    
+    def __str__(self):
+        return f"Movimiento: {self.type} de {self.qty} para {self.variant} en {self.store}"
 
 class StockBalance(models.Model):
     variant = models.ForeignKey(ProductVariant, on_delete=models.CASCADE)
@@ -116,6 +131,9 @@ class StockBalance(models.Model):
         unique_together = ('variant', 'store')
         verbose_name = "Stock Balance"
         verbose_name_plural = "Stock Balances"
+    
+    def __str__(self):
+        return f"Balance: {self.on_hand} en mano para {self.variant} en {self.store}"
 
 class Order(models.Model):
     store = models.ForeignKey(Store, on_delete=models.SET_NULL, null=True, blank=True, related_name='core_orders')
@@ -128,6 +146,9 @@ class Order(models.Model):
     class Meta:
         verbose_name = "Order"
         verbose_name_plural = "Orders"
+    
+    def __str__(self):
+        return f"Orden {self.id} - {self.status} en {self.store or 'General'}"
 
 class OrderLine(models.Model):
     order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='lines')
@@ -140,6 +161,9 @@ class OrderLine(models.Model):
     class Meta:
         verbose_name = "Order Line"
         verbose_name_plural = "Order Lines"
+    
+    def __str__(self):
+        return f"Línea de {self.variant} (x{self.qty}) en Orden {self.order.id}"
 
 class Transfer(models.Model):
     store_from = models.ForeignKey(Store, related_name='transfers_from', on_delete=models.CASCADE)
@@ -151,6 +175,9 @@ class Transfer(models.Model):
     class Meta:
         verbose_name = "Transfer"
         verbose_name_plural = "Transfers"
+    
+    def __str__(self):
+        return f"Transferencia de {self.store_from} a {self.store_to} - {self.status}"
 
 class TransferLine(models.Model):
     transfer = models.ForeignKey(Transfer, on_delete=models.CASCADE)
@@ -162,3 +189,6 @@ class TransferLine(models.Model):
     class Meta:
         verbose_name = "Transfer Line"
         verbose_name_plural = "Transfer Lines"
+
+    def __str__(self):
+        return f"Línea: {self.qty} de {self.variant} en Transferencia {self.transfer.id}"
